@@ -1601,6 +1601,7 @@ rules:
     resources:
       - nodes
       - nodes/proxy
+      - node/metrics
       - services
       - endpoints
       - pods

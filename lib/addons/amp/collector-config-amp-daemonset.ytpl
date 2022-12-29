@@ -285,16 +285,20 @@ spec:
       batch/metrics:
         timeout: 60s   
 
-    exporters:
-      awsprometheusremotewrite:
-        endpoint: "{{remoteWriteEndpoint}}"
-        aws_auth:
-          region: "{{awsRegion}}"
-          service: "aps"
+    extensions:
+      sigv4auth:
+        region: "{{awsRegion}}"
+        service: "aps"
 
+    exporters:
+      prometheusremotewrite:
+        endpoint: "{{remoteWriteEndpoint}}"
+        auth:
+          authenticator: sigv4auth
+          
     service:
       pipelines:
         metrics:
           receivers: [prometheus]
           processors: [batch/metrics]
-          exporters: [awsprometheusremotewrite]
+          exporters: [prometheusremotewrite]

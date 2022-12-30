@@ -34,21 +34,30 @@ const defaultProps: GrafanaAddOnProps = {
     service: {
       type: "LoadBalancer",
     },
-    datasources: {
-      "datasources.yaml": {
-        apiVersion: 1,
-        datasources: [
-          {
-            name: "Prometheus",
-            type: "prometheus",
-            url: "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-9953dc48-606f-4a85-ac53-4b7dec289572",
-            // url: "http://prometheus-server.prometheus.svc.cluster.local",
-            access: "proxy",
-            isDefault: true,
-          },
-        ],
+    "grafana.ini": {
+      auth: {
+        sigv4_auth_enabled: true,
       },
     },
+    // datasources: {
+    //   "datasources.yaml": {
+    //     apiVersion: 1,
+    //     datasources: [
+    //       {
+    //         name: "Prometheus",
+    //         type: "prometheus",
+    //         url: "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-9953dc48-606f-4a85-ac53-4b7dec289572",
+    //         // url: "http://prometheus-server.prometheus.svc.cluster.local",
+    //         access: "proxy",
+    //         isDefault: true,
+    //         // jsonData: {
+    //         //   sigV4Auth: true,
+    //         //   sigV4Region: "us-west-1",
+    //         // },
+    //       },
+    //     ],
+    //   },
+    // },
   },
 };
 

@@ -2,7 +2,7 @@
 import * as cdk from "aws-cdk-lib";
 
 // import BlueprintConstruct from '../examples/blueprint-construct';
-import ClusterConstruct from "../examples/blueprint-construct/eks-blueprints-stack";
+import ClusterConstruct from "../patterns/blueprint-construct/eks-blueprints-stack";
 
 const app = new cdk.App();
 

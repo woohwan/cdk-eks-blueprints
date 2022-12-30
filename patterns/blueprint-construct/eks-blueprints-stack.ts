@@ -5,6 +5,7 @@ import { Construct } from "constructs";
 import * as blueprints from "../../lib";
 import { DeploymentMode } from "../../lib";
 import { otelProps } from "../../lib";
+import { GrafanaAddOn } from "../addons/grafana";
 
 export default class ClusterConstruct extends Construct {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -17,6 +18,7 @@ export default class ClusterConstruct extends Construct {
     };
 
     const addOns: Array<blueprints.ClusterAddOn> = [
+      new blueprints.addons.EbsCsiDriverAddOn(),
       new blueprints.addons.CertManagerAddOn({
         installCRDs: true,
         createNamespace: true,
@@ -36,6 +38,7 @@ export default class ClusterConstruct extends Construct {
         // lib/amp 수정: 다른 region의 amp에 접속 가능
         region: "us-east-1",
       }),
+      new GrafanaAddOn(),
     ];
 
     const blueprint = blueprints.EksBlueprint.builder()

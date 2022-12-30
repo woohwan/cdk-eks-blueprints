@@ -20,14 +20,35 @@ export interface GrafanaAddOnProps extends HelmAddOnUserProps {
 const defaultProps: GrafanaAddOnProps = {
   name: "grafana",
   chart: "grafana",
-  release: "blueprints-addon-aws-for-fluent-bit",
+  release: "grafana",
   version: "6.48.2",
   repository: "https://grafana.github.io/helm-charts",
   namespace: "grafana",
+  // 나중에 별도의 yaml 파일로 분리할 수 있는지 확인할 것
+  //  AddOn 추가 전 ebs csi driver addon 추가 할 것
   values: {
-    "persistence.enabled": true,
-    "persistence.storageClassName": "gp2",
-    "service.type": "LoadBalancer",
+    persistence: {
+      enabled: true,
+      storageClassName: "gp2",
+    },
+    service: {
+      type: "LoadBalancer",
+    },
+    datasources: {
+      "datasources.yaml": {
+        apiVersion: 1,
+        datasources: [
+          {
+            name: "Prometheus",
+            type: "prometheus",
+            url: "https://aps-workspaces.us-east-1.amazonaws.com/workspaces/ws-9953dc48-606f-4a85-ac53-4b7dec289572",
+            // url: "http://prometheus-server.prometheus.svc.cluster.local",
+            access: "proxy",
+            isDefault: true,
+          },
+        ],
+      },
+    },
   },
 };
 
@@ -55,7 +76,9 @@ export class GrafanaAddOn extends HelmAddOn {
 
     // Apply additional IAM policies to the service account.
     const policies = this.options.iamPolicies || [];
-    policies.forEach((policy: PolicyStatement) => sa.addToPrincipalPolicy(policy));
+    policies.forEach((policy: PolicyStatement) =>
+      sa.addToPrincipalPolicy(policy)
+    );
 
     // Configure values.
     const values = {

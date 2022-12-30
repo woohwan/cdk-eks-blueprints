@@ -18,6 +18,13 @@ export default class ClusterConstruct extends Construct {
     };
 
     const addOns: Array<blueprints.ClusterAddOn> = [
+      // EKS Managed Addon
+      new blueprints.VpcCniAddOn(),
+      new blueprints.CoreDnsAddOn(),
+      new blueprints.KubeProxyAddOn(),
+
+      // Addons...
+      new blueprints.EfsCsiDriverAddOn(),
       new blueprints.addons.EbsCsiDriverAddOn(),
       new blueprints.addons.CertManagerAddOn({
         installCRDs: true,

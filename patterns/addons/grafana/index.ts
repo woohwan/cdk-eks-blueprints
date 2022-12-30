@@ -13,6 +13,7 @@ export interface GrafanaAddOnProps extends HelmAddOnUserProps {
    * Iam policies for the add-on.
    */
   iamPolicies?: PolicyStatement[];
+  datasources?: {};
 }
 /**
  * Default props for the add-on.
@@ -85,9 +86,7 @@ export class GrafanaAddOn extends HelmAddOn {
 
     // Apply additional IAM policies to the service account.
     const policies = this.options.iamPolicies || [];
-    policies.forEach((policy: PolicyStatement) =>
-      sa.addToPrincipalPolicy(policy)
-    );
+    policies.forEach((policy: PolicyStatement) => sa.addToPrincipalPolicy(policy));
 
     // Configure values.
     const values = {

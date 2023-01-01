@@ -1,3 +1,4 @@
+import { ICertificate } from "aws-cdk-lib/aws-certificatemanager";
 // lib/eks-blueprints-stack.ts
 import "source-map-support/register";
 import * as cdk from "aws-cdk-lib";
@@ -6,9 +7,15 @@ import * as blueprints from "../../lib";
 import { DeploymentMode } from "../../lib";
 import { otelProps } from "../../lib";
 import { GrafanaAddOn } from "../addons/grafana";
+import { KeycloakAddOn } from "../addons/keycloak";
+import { GlobalResources, ImportHostedZoneProvider } from "../../lib";
+
+export interface ClusterProps extends cdk.StackProps {
+  certificate?: ICertificate;
+}
 
 export default class ClusterConstruct extends Construct {
-  constructor(scope: Construct, id: string, props?: cdk.StackProps) {
+  constructor(scope: Construct, id: string, props?: ClusterProps) {
     super(scope, id);
 
     const account = props?.env?.account!;
@@ -30,6 +37,12 @@ export default class ClusterConstruct extends Construct {
         installCRDs: true,
         createNamespace: true,
       }),
+
+      new blueprints.ExternalDnsAddOn({
+        hostedZoneResources: [blueprints.GlobalResources.HostedZone],
+      }),
+
+      new blueprints.addons.AwsLoadBalancerControllerAddOn(),
       new blueprints.addons.AdotCollectorAddOn(undefined, versionProps),
       new blueprints.addons.MetricsServerAddOn(),
       new blueprints.addons.PrometheusNodeExporterAddOn({
@@ -46,11 +59,14 @@ export default class ClusterConstruct extends Construct {
         region: "us-east-1",
       }),
       new GrafanaAddOn(),
+      // new KeycloakAddOn(),
     ];
 
     const blueprint = blueprints.EksBlueprint.builder()
       .account(account)
       .region(region)
+      // for external DNS, register resource provider
+      .resourceProvider(GlobalResources.HostedZone, new ImportHostedZoneProvider("Z0582530BV26P4AI9BGR", "steve-aws.com"))
       .addOns(...addOns)
       .teams()
       .build(scope, id + "-stack");

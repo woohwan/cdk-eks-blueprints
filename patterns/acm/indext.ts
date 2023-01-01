@@ -10,6 +10,7 @@ export interface CertificateProps extends cdk.StackProps {
 }
 
 export class CertificateStack extends cdk.Stack {
+  public readonly certificate: acm.ICertificate;
   constructor(scope: Construct, id: string, props: CertificateProps) {
     super(scope, id, props);
     const domainName = props.domainName;
@@ -29,6 +30,12 @@ export class CertificateStack extends cdk.Stack {
         },
       },
     });
+    this.certificate = certificate;
+    new cdk.CfnOutput(this, "certificateArn", {
+      value: certificate.certificateArn,
+      exportName: "certificateArn",
+    });
+
     // const certificate = new acm.Certificate(this, "Certificate", {
     //   domainName: domainName,
     //   certificateName: props.certificateName || id + "-certificate", // Optionally provide an certificate name

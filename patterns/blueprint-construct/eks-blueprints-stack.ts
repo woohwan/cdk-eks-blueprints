@@ -1,3 +1,5 @@
+import { CertificateProps } from "./../acm/indext";
+import { KeyCloakAddOnProps } from "./../addons/keycloak/index";
 import { ICertificate } from "aws-cdk-lib/aws-certificatemanager";
 // lib/eks-blueprints-stack.ts
 import "source-map-support/register";
@@ -9,17 +11,23 @@ import { otelProps } from "../../lib";
 import { GrafanaAddOn } from "../addons/grafana";
 import { KeycloakAddOn } from "../addons/keycloak";
 import { GlobalResources, ImportHostedZoneProvider } from "../../lib";
+import { values } from "lodash";
 
 export interface ClusterProps extends cdk.StackProps {
   certificate?: ICertificate;
 }
 
 export default class ClusterConstruct extends Construct {
+  readonly certificate: ICertificate;
   constructor(scope: Construct, id: string, props?: ClusterProps) {
     super(scope, id);
 
     const account = props?.env?.account!;
     const region = props?.env?.region!;
+
+    // ACM Certificate for '*.steve-aws.com' : Optional
+    const certificateArn = props?.certificate?.certificateArn;
+    // ADOT
     const versionProps: otelProps = {
       version: "v0.66.0-eksbuild.1",
     };
@@ -59,7 +67,7 @@ export default class ClusterConstruct extends Construct {
         region: "us-east-1",
       }),
       new GrafanaAddOn(),
-      // new KeycloakAddOn(),
+      new KeycloakAddOn(),
     ];
 
     const blueprint = blueprints.EksBlueprint.builder()

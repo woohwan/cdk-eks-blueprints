@@ -17,4 +17,5 @@ const certiStack = new CertificateStack(app, "acm-stack", {
   domainName: "steve-aws.com",
   certificateName: "keycloack",
 });
+// 생성한 인증서를 cluster로 넘겨 줌: optional
 new ClusterConstruct(app, "cluster", { env, certificate: certiStack.certificate });

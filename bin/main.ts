@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+import { CertificateStack } from "./../patterns/acm/indext";
 import * as cdk from "aws-cdk-lib";
 
 // import BlueprintConstruct from '../examples/blueprint-construct';
@@ -11,5 +11,10 @@ const region = process.env.CDK_DEFAULT_REGION;
 // const region = "us-east-1";
 const env = { account, region };
 
-new ClusterConstruct(app, "cluster", { env });
-// new BlueprintConstruct(app, props);
+const certiStack = new CertificateStack(app, "acm-stack", {
+  env: env,
+  zoneName: "steve-aws.com",
+  domainName: "steve-aws.com",
+  certificateName: "keycloack",
+});
+new ClusterConstruct(app, "cluster", { env, certificate: certiStack.certificate });

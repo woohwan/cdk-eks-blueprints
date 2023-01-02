@@ -66,17 +66,16 @@ export default class ClusterConstruct extends Construct {
         region: "us-east-1",
       }),
       new GrafanaAddOn(),
-      new KeycloakAddOn(),
+      new KeycloakAddOn({
+        amgWorkspaceId: "g-ed244f2cad.grafana-workspace.ap-northeast-2.amazonaws.com",
+      }),
     ];
 
     const blueprint = blueprints.EksBlueprint.builder()
       .account(account)
       .region(region)
       // for external DNS, register resource provider
-      .resourceProvider(
-        GlobalResources.HostedZone,
-        new ImportHostedZoneProvider("Z0582530BV26P4AI9BGR", "steve-aws.com")
-      )
+      .resourceProvider(GlobalResources.HostedZone, new ImportHostedZoneProvider("Z0582530BV26P4AI9BGR", "steve-aws.com"))
       .addOns(...addOns)
       .teams()
       .build(scope, id + "-stack");

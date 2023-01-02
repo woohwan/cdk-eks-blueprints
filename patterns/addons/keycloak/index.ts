@@ -1,11 +1,14 @@
 import * as cdk from "aws-cdk-lib";
 import { PolicyStatement } from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
+// import merge from "ts-deepmerge";
 
 import { HelmAddOn, HelmAddOnUserProps } from "../../../lib/addons";
 import { ClusterInfo } from "../../../lib/spi/types";
 import { createNamespace } from "../../../lib/utils/namespace-utils";
 
+// import { keycloakConfigCli } from "./keycloakcli-config";
+const { interpolation } = require("interpolate-json");
 /**
  * Configuration options for the keycloak add-on.
  */
@@ -14,12 +17,12 @@ export interface KeyCloakAddOnProps extends HelmAddOnUserProps {
    * Iam policies for the add-on.
    */
   iamPolicies?: PolicyStatement[];
-  datasources?: {};
-  values?: {};
+  amgWorkspaceId?: {};
 }
 /**
  * Default props for the add-on.
  */
+
 const defaultProps: KeyCloakAddOnProps = {
   name: "keycloak",
   chart: "keycloak",
@@ -46,9 +49,24 @@ const defaultProps: KeyCloakAddOnProps = {
         "alb.ingress.kubernetes.io/scheme": "internet-facing",
         "alb.ingress.kubernetes.io/target-type": "ip",
         "alb.ingress.kubernetes.io/listen-ports": '[{"HTTPS":443}]',
-        "alb.ingress.kubernetes.io/certificate-arn": cdk.Fn.importValue("certificateArn"),
+        // ACM Certificate을 받아 옴
+        "alb.ingress.kubernetes.io/certificate-arn":
+          cdk.Fn.importValue("certificateArn"),
       },
       hostname: "keycloak.steve-aws.com",
+    },
+    keycloakConfigCli: {
+      enabled: true,
+      image: {
+        tag: "5.5.0-debian-11-r16",
+      },
+      backoffLimit: 6,
+      configuration: {
+        "realm.json": {
+          realm: "keycloak-blog",
+          enabled: true,
+        },
+      },
     },
   },
 };
@@ -77,7 +95,15 @@ export class KeycloakAddOn extends HelmAddOn {
 
     // Apply additional IAM policies to the service account.
     const policies = this.options.iamPolicies || [];
-    policies.forEach((policy: PolicyStatement) => sa.addToPrincipalPolicy(policy));
+    policies.forEach((policy: PolicyStatement) =>
+      sa.addToPrincipalPolicy(policy)
+    );
+
+    // keycloakConfigCli configuration
+    // let params = {
+    //   WORKSPACE_ENDPOINT: this.options.amgWorkspaceId,
+    // };
+    // const configCli = interpolation.expand(keycloakConfigCli, params);
 
     // Configure values.
     const values = {
@@ -86,6 +112,8 @@ export class KeycloakAddOn extends HelmAddOn {
         create: false,
       },
       ...this.options.values,
+      //Add keycloakConfigCli configuration
+      // ...configCli,
     };
 
     const helmChart = this.addHelmChart(clusterInfo, values);

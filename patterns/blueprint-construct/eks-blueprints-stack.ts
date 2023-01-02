@@ -11,7 +11,6 @@ import { otelProps } from "../../lib";
 import { GrafanaAddOn } from "../addons/grafana";
 import { KeycloakAddOn } from "../addons/keycloak";
 import { GlobalResources, ImportHostedZoneProvider } from "../../lib";
-import { values } from "lodash";
 
 export interface ClusterProps extends cdk.StackProps {
   certificate?: ICertificate;
@@ -74,7 +73,10 @@ export default class ClusterConstruct extends Construct {
       .account(account)
       .region(region)
       // for external DNS, register resource provider
-      .resourceProvider(GlobalResources.HostedZone, new ImportHostedZoneProvider("Z0582530BV26P4AI9BGR", "steve-aws.com"))
+      .resourceProvider(
+        GlobalResources.HostedZone,
+        new ImportHostedZoneProvider("Z0582530BV26P4AI9BGR", "steve-aws.com")
+      )
       .addOns(...addOns)
       .teams()
       .build(scope, id + "-stack");
